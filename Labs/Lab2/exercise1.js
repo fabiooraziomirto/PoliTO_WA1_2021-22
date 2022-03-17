@@ -7,7 +7,7 @@ function Film(id, title, favorites = false, date = undefined, rating = undefined
     this.id = id;
     this.title = title;
     this.favorites = favorites;
-    this.date = dayjs(date).format("YYYY-MM-DD");
+    this.date = date;
     this.rating = rating;
 
     this.toString = () => `${this.id} ${this.title} ${this.favorites} ${this.date} ${this.rating} `;
@@ -158,7 +158,7 @@ async function main(){
     const filmDb = new FilmLibrary();
     
     //const newFilmIn = await filmDb.addNewFilm(newFilm);
-    const delFilm = await filmDb.resetWatchedFilms();
+    //const delFilm = await filmDb.resetWatchedFilms();
     const myFilms = await filmDb.getAll();
         console.log(myFilms.toString());
 
