@@ -3,7 +3,7 @@
 const dayjs = require('dayjs'); 
 const sqlite = require('sqlite3');
 
-function Film(id, title, favorites = false, date = undefined, rating = undefined) {
+function Film(id, title, favorites, date, rating) {
     this.id = id;
     this.title = title;
     this.favorites = favorites;
@@ -75,7 +75,7 @@ function FilmLibrary(){
             db.all(sql, [], (err, rows) => {
                 if(err) reject(err);
                 else {
-                    const films = rows.map(row => new Film(row.id, row.title, row.favorites, row.date, row.rating));
+                    const films = rows.map(row => new Film(row.id, row.title, row.favorites ? true : false, row.date, row.rating));
                     resolve(films);
             } 
         });
@@ -84,11 +84,16 @@ function FilmLibrary(){
     // getAllFavorite
     this.getAllFavorite = () => {
         return new Promise((resolve, reject) => {
-            const sql = 'SELECT * FROM films WHERE favorite == 1';
-            db.all(sql, [], (err, rows) => {
+            const sql = 'SELECT * FROM films WHERE favorite = ?';
+            db.all(sql, ['1'], (err, rows) => {
                 if(err) reject(err);
                 else {
-                    const films = rows.map(row => new Film(row.id, row.title, row.favorites, row.date, row.rating));
+                    console.log(rows);
+                    const films = rows.map(row => {
+                        new Film(row.id, row.title, row.favorites ? true : false, dayjs(row.date), row.rating);
+                        console.log('data giusta', dayjs(row.date), row.favorites);
+                    });
+                    
                     resolve(films);
             } 
         });
@@ -98,7 +103,7 @@ function FilmLibrary(){
     // getAllWatchedToday
     this.getAllWatchedToday = () => {
         return new Promise((resolve, reject) => {
-            const sql = 'SELECT * FROM films WHERE watchdate = ("2022-03-16")';
+            const sql = 'SELECT * FROM films WHERE watchdate = ("2022-03-17")';
             db.all(sql, [], (err, rows) => {
                 if(err) reject(err);
                 else {
@@ -154,13 +159,13 @@ function FilmLibrary(){
 };
 
 async function main(){
-    //const newFilm = new Film('7', 'Fast&Furious', '0', '2022-03-17', '4');
+    //const newFilm = new Film('7', 'Fast&Furious', '1', '2022-03-07', '4');
     const filmDb = new FilmLibrary();
     
     //const newFilmIn = await filmDb.addNewFilm(newFilm);
-    //const delFilm = await filmDb.resetWatchedFilms();
-    const myFilms = await filmDb.getAll();
-        console.log(myFilms.toString());
+    //const delFilm = await filmDb.getAllWatchedToday();
+    const myFilms = await filmDb.getAllFavorite();
+    console.log(myFilms);
 
 }
 
